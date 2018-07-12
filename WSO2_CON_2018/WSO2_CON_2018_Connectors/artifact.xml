@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="fileconnector-connector" groupId="com.example.WSO2_CON_2018_Connectors.lib" version="2.0.10" type="synapse/lib" serverRole="EnterpriseServiceBus">
+        <file>fileconnector-connector-2.0.10.zip</file>
+    </artifact>
+    <artifact name="gmail-connector" groupId="com.example.WSO2_CON_2018_Connectors.lib" version="3.0.7" type="synapse/lib" serverRole="EnterpriseServiceBus">
+        <file>gmail-connector-3.0.7.zip</file>
+    </artifact>
+</artifacts>

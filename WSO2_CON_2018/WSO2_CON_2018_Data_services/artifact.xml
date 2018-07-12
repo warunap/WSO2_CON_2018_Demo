@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="emissionService" groupId="com.example.WSO2_CON_2018_Data_services.dataservice" version="1.0.0" type="service/dataservice" serverRole="DataServicesServer">
+        <file>dataservice/emissionService.dbs</file>
+    </artifact>
+    <artifact name="InsuranceService" groupId="com.example.WSO2_CON_2018_Data_services.dataservice" version="1.0.0" type="service/dataservice" serverRole="DataServicesServer">
+        <file>dataservice/InsuranceService.dbs</file>
+    </artifact>
+    <artifact name="licenseService" groupId="com.example.WSO2_CON_2018_Data_services.dataservice" version="1.0.0" type="service/dataservice" serverRole="DataServicesServer">
+        <file>dataservice/licenseService.dbs</file>
+    </artifact>
+</artifacts>

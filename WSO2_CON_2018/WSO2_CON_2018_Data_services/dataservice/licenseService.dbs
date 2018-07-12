@@ -1,0 +1,26 @@
+<data name="licenseService" serviceGroup="" serviceNamespace="">
+    <description/>
+    <config id="licenseService">
+        <property name="org.wso2.ws.dataservice.user">root</property>
+        <property name="org.wso2.ws.dataservice.password">admin</property>
+        <property name="org.wso2.ws.dataservice.protocol">jdbc:mysql://localhost:3306/WSO2_CON_2018_LICENSE</property>
+        <property name="org.wso2.ws.dataservice.driver">com.mysql.jdbc.Driver</property>
+    </config>
+    <query id="addLicenseInfo" useConfig="licenseService">
+        <sql>INSERT INTO license_information (ssn,license_plate,expiry_date,status,renew_date) VALUES (?, ?, ?, ?, ?)</sql>
+        <param name="ssn" ordinal="1" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="license_plate" ordinal="2" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="expiry_date" ordinal="3" paramType="SCALAR" sqlType="DATE" type="IN"/>
+        <param name="status" ordinal="4" paramType="SCALAR" sqlType="STRING" type="IN"/>
+        <param name="renew_date" ordinal="5" paramType="SCALAR" sqlType="DATE" type="IN"/>
+    </query>
+    <operation returnRequestStatus="true" name="saveLicenseInfo">
+        <call-query href="addLicenseInfo">
+            <with-param column="ssn" name="ssn"/>
+            <with-param column="license_plate" name="license_plate"/>
+            <with-param column="expiry_date" name="expiry_date"/>
+            <with-param column="status" name="status"/>
+            <with-param column="renew_date" name="renew_date"/>
+        </call-query>
+    </operation>
+</data>

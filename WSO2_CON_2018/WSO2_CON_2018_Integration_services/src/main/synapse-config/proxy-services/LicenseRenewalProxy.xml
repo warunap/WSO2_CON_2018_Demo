@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy name="LicenseRenewalProxy" startOnLoad="true" trace="disable"
+  transports="https http" xmlns="http://ws.apache.org/ns/synapse">
+  <target>
+    <inSequence>
+      <log level="full"/>
+      <property description="ssn" expression="$body//ssn" name="ssn"
+        scope="default" type="STRING"/>
+      <property description="license plate"
+        expression="$body//license_plate" name="license_plate"
+        scope="default" type="STRING"/>
+      <property description="credit card number"
+        expression="$body//card_info//card_number" name="card_number"
+        scope="default" type="STRING"/>
+      <property description="credit card cvc"
+        expression="$body//card_info//cvc" name="cvc" scope="default" type="STRING"/>
+      <property description="credit card expiry date"
+        expression="$body//card_info//expiry_date" name="expiry_date"
+        scope="default" type="STRING"/>
+      <property description="credit card payement"
+        expression="$body//card_info//payement" name="payement"
+        scope="default" type="STRING"/>
+      <property description="email" expression="$body//email"
+        name="email" scope="default" type="STRING"/>
+      <property description="validUntil" expression="$body//validUntil"
+        name="validUntil" scope="default" type="STRING"/>
+      <log level="custom">
+        <property expression="$ctx:ssn" name="ssn"/>
+        <property expression="$ctx:license_plate" name="license_plate"/>
+        <property expression="$ctx:card_number" name="card_number"/>
+        <property expression="$ctx:cvc" name="cvc"/>
+        <property expression="$ctx:expiry_date" name="expiry_date"/>
+        <property expression="$ctx:payement" name="payement"/>
+        <property expression="$ctx:email" name="email"/>
+      </log>
+      <payloadFactory description="emission" media-type="xml">
+        <format>
+          <soapenv:Envelope xmlns:dat="http://ws.wso2.org/dataservice" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header/>
+            <soapenv:Body>
+              <dat:getEmissionRecordbyPlateId>
+                <dat:license_plate>$1</dat:license_plate>
+              </dat:getEmissionRecordbyPlateId>
+            </soapenv:Body>
+          </soapenv:Envelope>
+        </format>
+        <args>
+          <arg evaluator="xml" expression="$ctx:license_plate"/>
+        </args>
+      </payloadFactory>
+      <header name="Accept" scope="transport" value="application/json"/>
+      <property action="remove" name="Content-Type" scope="transport"/>
+      <header name="Action" scope="default" value="urn:getEmissionRecordbyPlateId"/>
+      <call>
+        <endpoint key="EmissionEP"/>
+      </call>
+      <log level="custom">
+        <property expression="json-eval($.emission_result.status)" name="****emission_status****"/>
+      </log>
+      <property description="status of emission"
+        expression="json-eval($.emission_result.status)"
+        name="emission_status" scope="default" type="STRING"/>
+      <filter description="" regex="ACTIVE" source="$ctx:emission_status">
+        <then>
+          <log level="custom">
+            <property name="status of emission" value="VALID"/>
+          </log>
+          <property description="emission expiry date"
+            expression="json-eval($.emission_result.expiry_date)"
+            name="emission_expiry_date" scope="default" type="STRING"/>
+          <property description="emission expiry status"
+            name="emission_expiry_status" scope="default" type="STRING" value="EXPIRED"/>
+          <property
+            expression="get-property('SYSTEM_DATE', 'yyyy-MM-dd')"
+            name="current_date" scope="default" type="STRING"/>
+          <script language="js"><![CDATA[var exp = mc.getProperty("emission_expiry_date");
+var today = mc.getProperty("current_date");
+
+if (exp > today) {
+	mc.setProperty("emission_expiry_status", "VALID");
+}]]></script>
+          <filter description="" regex="EXPIRED" source="$ctx:emission_expiry_status">
+            <then>
+              <payloadFactory media-type="xml">
+                <format>
+                  <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                      <RenewalStatus>Emission report Expired</RenewalStatus>
+                    </soapenv:Body>
+                  </soapenv:Envelope>
+                </format>
+                <args/>
+              </payloadFactory>
+              <respond/>
+            </then>
+            <else/>
+          </filter>
+          <log level="custom">
+            <property expression="$ctx:emission_expiry_status" name="DATE VALIDATED"/>
+            <property expression="$ctx:emission_expiry_date" name="DATE EXP"/>
+          </log>
+        </then>
+        <else>
+          <payloadFactory media-type="xml">
+            <format>
+              <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Header/>
+                <soapenv:Body>
+                  <RenewalStatus>Emission report not Valid</RenewalStatus>
+                </soapenv:Body>
+              </soapenv:Envelope>
+            </format>
+            <args/>
+          </payloadFactory>
+          <respond/>
+        </else>
+      </filter>
+      <payloadFactory description="insurance" media-type="xml">
+        <format>
+          <soapenv:Envelope xmlns:id="id" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header/>
+            <soapenv:Body>
+              <id:getInsuranceInfoByID>
+                <id:license_plate>$1</id:license_plate>
+              </id:getInsuranceInfoByID>
+            </soapenv:Body>
+          </soapenv:Envelope>
+        </format>
+        <args>
+          <arg evaluator="xml" expression="$ctx:license_plate"/>
+        </args>
+      </payloadFactory>
+      <header name="Accept" scope="transport" value="application/json"/>
+      <property action="remove" name="Content-Type" scope="transport"/>
+      <header name="Action" scope="default" value="urn:getInsuranceInfoByID"/>
+      <call>
+        <endpoint key="InsuranceEP"/>
+      </call>
+      <log level="custom">
+        <property name="INSUARANCE SERVICE" value="Finished"/>
+      </log>
+      <property description="status of insurance"
+        expression="json-eval($.insurance_result.status)"
+        name="insurance_status" scope="default" type="STRING"/>
+      <filter description="" regex="ACTIVE" source="$ctx:insurance_status">
+        <then>
+          <log level="custom">
+            <property name="status of insurance" value="VALID"/>
+          </log>
+          <property description="insurance expiry date"
+            expression="json-eval($.insurance_result.expiry_date)"
+            name="insurance_expiry_date" scope="default" type="STRING"/>
+          <property description="insurance expiry status"
+            name="insurance_expiry_status" scope="default" type="STRING" value="EXPIRED"/>
+          <property
+            expression="get-property('SYSTEM_DATE', 'yyyy-MM-dd')"
+            name="current_date" scope="default" type="STRING"/>
+          <script language="js"><![CDATA[var exp = mc.getProperty("insurance_expiry_date");
+var today = mc.getProperty("current_date");
+
+if (exp > today) {
+	mc.setProperty("insurance_expiry_status", "VALID");
+}]]></script>
+          <filter description="" regex="EXPIRED" source="$ctx:insurance_expiry_status">
+            <then>
+              <payloadFactory media-type="xml">
+                <format>
+                  <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                      <RenewalStatus>Insurance report Expired</RenewalStatus>
+                    </soapenv:Body>
+                  </soapenv:Envelope>
+                </format>
+                <args/>
+              </payloadFactory>
+              <respond/>
+            </then>
+            <else/>
+          </filter>
+          <log level="custom">
+            <property expression="$ctx:insurance_expiry_status" name="DATE VALIDATED"/>
+            <property expression="$ctx:insurance_expiry_date" name="DATE EXP"/>
+          </log>
+        </then>
+        <else>
+          <payloadFactory media-type="xml">
+            <format>
+              <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Header/>
+                <soapenv:Body>
+                  <RenewalStatus>Insurance report not Valid</RenewalStatus>
+                </soapenv:Body>
+              </soapenv:Envelope>
+            </format>
+            <args/>
+          </payloadFactory>
+          <respond/>
+        </else>
+      </filter>
+      <property expression="$ctx:card_number" name="uri.var.cardNumber"
+        scope="default" type="STRING"/>
+      <property expression="$ctx:cvc" name="uri.var.cvc" scope="default" type="STRING"/>
+      <property expression="$ctx:expiry_date"
+        name="uri.var.validityDate" scope="default" type="STRING"/>
+      <call>
+        <endpoint key="PaymentEP"/>
+      </call>
+      <property description="PayementStatus"
+        expression="json-eval($.PayementStatus)" name="PayementStatus"
+        scope="default" type="STRING"/>
+      <filter description="" regex="Successfull" source="$ctx:PayementStatus">
+        <then>
+          <log description="" level="custom">
+            <property name="Payement Status" value="Successfull"/>
+          </log>
+        </then>
+        <else>
+          <payloadFactory media-type="xml">
+            <format>
+              <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Header/>
+                <soapenv:Body>
+                  <RenewalStatus>Invalid payemnt</RenewalStatus>
+                </soapenv:Body>
+              </soapenv:Envelope>
+            </format>
+            <args/>
+          </payloadFactory>
+          <respond/>
+        </else>
+      </filter>
+      <property expression="get-property('SYSTEM_DATE', 'yyyy-MM-dd')"
+        name="current_date" scope="default" type="STRING"/>
+      <payloadFactory description="license" media-type="xml">
+        <format>
+          <soap:Envelope xmlns:dat="http://ws.wso2.org/dataservice" xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+            <soap:Header/>
+            <soap:Body>
+              <dat:saveLicenseInfo>
+                <dat:ssn>$1</dat:ssn>
+                <dat:license_plate>$2</dat:license_plate>
+                <dat:expiry_date>$3</dat:expiry_date>
+                <dat:status>VALID</dat:status>
+                <dat:renew_date>$4</dat:renew_date>
+              </dat:saveLicenseInfo>
+            </soap:Body>
+          </soap:Envelope>
+        </format>
+        <args>
+          <arg evaluator="xml" expression="$ctx:ssn"/>
+          <arg evaluator="xml" expression="$ctx:license_plate"/>
+          <arg evaluator="xml" expression="$ctx:validUntil"/>
+          <arg evaluator="xml" expression="$ctx:current_date"/>
+        </args>
+      </payloadFactory>
+      <property action="remove" name="Content-Type" scope="transport"/>
+      <header name="Action" scope="default" value="urn:saveLicenseInfo"/>
+      <call>
+        <endpoint key="LicenseEP"/>
+      </call>
+      <property description="file name"
+        expression="fn:concat('/home/waruna/WSO2/UScon2018/in/',get-property('SYSTEM_TIME'),'.txt')"
+        name="fileName" scope="default" type="STRING"/>
+      <payloadFactory media-type="json">
+        <format>{"Transaction Record":{"ssn":"$1","license_plate":"$2","payemnt":"$3"}}</format>
+        <args>
+          <arg evaluator="xml" expression="$ctx:ssn"/>
+          <arg evaluator="xml" expression="$ctx:license_plate"/>
+          <arg evaluator="xml" expression="$ctx:payement"/>
+        </args>
+      </payloadFactory>
+      <property description="copy message" expression="json-eval($.)"
+        name="messageCopy" scope="default" type="STRING"/>
+      <fileconnector.create>
+        <source>{$ctx:fileName}</source>
+        <inputContent>{$ctx:messageCopy}</inputContent>
+      </fileconnector.create>
+      <property description="email subject"
+        expression="fn:concat('License Renewal - ',$ctx:license_plate)"
+        name="email_subject" scope="default" type="STRING"/>
+      <property description="emailBody"
+        expression="fn:concat('Your License is renewed - ',$ctx:license_plate , ' on ', $ctx:current_date, '.', 'The new license is valid until ',$ctx:validUntil, '.')"
+        name="emailBody" scope="default" type="STRING"/>
+      <gmail.init>
+        <userId>xxxxxxxxx@gmail.com</userId>
+        <accessToken>xxxxxx</accessToken>
+        <apiUrl>https://www.googleapis.com/gmail</apiUrl>
+        <clientId>xxxxxxx</clientId>
+        <clientSecret>xxxxxxxx</clientSecret>
+        <refreshToken>xxxxxxxx</refreshToken>
+      </gmail.init>
+      <gmail.sendMail>
+        <to>{$ctx:email}</to>
+        <subject>{$ctx:email_subject}</subject>
+        <from>xxxxxxxx@gmail.com</from>
+        <messageBody>{$ctx:emailBody}</messageBody>
+      </gmail.sendMail>
+      <payloadFactory media-type="xml">
+        <format>
+          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header/>
+            <soapenv:Body>
+              <RenewalStatus>SUCCESSFUL</RenewalStatus>
+            </soapenv:Body>
+          </soapenv:Envelope>
+        </format>
+        <args/>
+      </payloadFactory>
+      <respond/>
+    </inSequence>
+    <outSequence/>
+    <faultSequence/>
+  </target>
+</proxy>

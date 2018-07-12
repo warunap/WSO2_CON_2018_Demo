@@ -1,0 +1,23 @@
+<data name="emissionService">
+    <config id="emission">
+        <property name="username">root</property>
+        <property name="password">admin</property>
+        <property name="url">jdbc:mysql://localhost:3306/WSO2_CON_2018_EMISSION</property>
+        <property name="driverClassName">com.mysql.jdbc.Driver</property>
+    </config>
+    <query id="getEmissionRecordbyPlateID" useConfig="emission">
+        <sql>SELECT * FROM emission_records where license_plate = ?</sql>
+        <result escapeNonPrintableChar="true" outputType="json">{"emission_result":{"id":$id,"ssn":"$ssn","status":"$status","expiry_date":"$expiry_date","license_plate":"$license_plate"}}</result>
+        <param defaultValue="license_plate" name="license_plate" sqlType="STRING"/>
+    </query>
+    <operation name="getEmissionRecordbyPlateId">
+        <call-query href="getEmissionRecordbyPlateID">
+            <with-param name="license_plate" query-param="license_plate"/>
+        </call-query>
+    </operation>
+    <resource method="GET" path="getEmissionRecord">
+        <call-query href="getEmissionRecordbyPlateID">
+            <with-param name="license_plate" query-param="license_plate"/>
+        </call-query>
+    </resource>
+</data>

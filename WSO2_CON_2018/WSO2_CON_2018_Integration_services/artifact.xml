@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="PaymentEP" groupId="com.example.WSO2_CON_2018_Integration_services.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/PaymentEP.xml</file>
+    </artifact>
+    <artifact name="LicenseEP" groupId="com.example.WSO2_CON_2018_Integration_services.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/LicenseEP.xml</file>
+    </artifact>
+    <artifact name="InsuranceEP" groupId="com.example.WSO2_CON_2018_Integration_services.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/InsuranceEP.xml</file>
+    </artifact>
+    <artifact name="EmissionEP" groupId="com.example.WSO2_CON_2018_Integration_services.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/EmissionEP.xml</file>
+    </artifact>
+    <artifact name="LicenseRenewalProxy" groupId="com.example.WSO2_CON_2018_Integration_services.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/LicenseRenewalProxy.xml</file>
+    </artifact>
+</artifacts>

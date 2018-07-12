@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoint name="EmissionEP" xmlns="http://ws.apache.org/ns/synapse">
+  <address trace="disable" uri="http://localhost:8280/services/emissionService"/>
+</endpoint>

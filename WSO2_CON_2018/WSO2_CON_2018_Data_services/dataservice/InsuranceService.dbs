@@ -1,0 +1,18 @@
+<data name="InsuranceService">
+    <config id="insuranceService">
+        <property name="username">root</property>
+        <property name="password">admin</property>
+        <property name="url">jdbc:mysql://localhost:3306/WSO2_CON_2018_INSURANCE</property>
+        <property name="driverClassName">com.mysql.jdbc.Driver</property>
+    </config>
+    <query id="getInsuranceInfobyID" useConfig="insuranceService">
+        <sql>SELECT * FROM insurance_records where license_plate = ?</sql>
+        <result defaultNamespace="id" escapeNonPrintableChar="true" outputType="json">{"insurance_result":{"id":$id,"ssn":"$ssn","status":"$status","expiry_date":"$expiry_date","license_plate":"$license_plate"}}</result>
+        <param name="license_plate" sqlType="STRING"/>
+    </query>
+    <operation name="getInsuranceInfoByID">
+        <call-query href="getInsuranceInfobyID">
+            <with-param column="license_plate" name="license_plate"/>
+        </call-query>
+    </operation>
+</data>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="jsonToSOAP" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+                    <property expression="json-eval($.request.ssn)"
+                   name="ssn"
+                   scope="default"
+                   type="STRING"/>
+         <property expression="json-eval($.request.license_plate)"
+                   name="license_plate"
+                   scope="default"
+                   type="STRING"/>
+         <property expression="json-eval($.request.card_info.card_number)"
+                   name="card_number"
+                   scope="default"
+                   type="STRING"/>
+         <property expression="json-eval($.request.card_info.cvc)"
+                   name="cvc"
+                   scope="default"
+                   type="STRING"/>
+         <property expression="json-eval($.request.card_info.expiry_date)"
+                   name="expiry_date"
+                   scope="default"
+                   type="STRING"/>
+        <property expression="json-eval($.request.card_info.payment)"
+                   name="payment"
+                   scope="default"
+                   type="STRING"/>
+         <property expression="json-eval($.request.email)"
+                   name="email"
+                   scope="default"
+                   type="STRING"/>       
+         <property expression="json-eval($.request.validUntil)"
+                   name="validUntil"
+                   scope="default"
+                   type="STRING"/>
+         <log level="custom">
+            <property expression="json-eval($.request.ssn)" name="ssn"/>
+            <property expression="json-eval($.request.license_plate)" name="license_plate"/>
+            <property expression="json-eval($.request.card_info.card_number)"
+                      name="card_number"/>
+            <property expression="json-eval($.request.card_info.cvc)" name="cvc"/>
+            <property expression="json-eval($.request.card_info.expiry_date)"
+                      name="expiry_date"/>
+            <property expression="json-eval($.request.email)" name="email"/>
+            <property expression="json-eval($.request.card_info.payment)" name="payment"/>
+            <property expression="json-eval($.request.validUntil)" name="validUntil"/>
+         </log>
+         <payloadFactory media-type="xml">
+            <format>
+            <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+   <soap:Body>
+      <ssn xmlns="">$1</ssn>
+      <license_plate xmlns="">$2</license_plate>
+      <card_info xmlns="">
+         <card_number>$3</card_number>
+         <cvc>$4</cvc>
+         <expiry_date>$5</expiry_date>
+         <payement>$6</payement>
+      </card_info>
+      <email xmlns="">$7</email>
+      <validUntil xmlns="">$8</validUntil>
+   </soap:Body>
+</soap:Envelope>
+            </format>
+            <args>
+               <arg evaluator="xml" expression="$ctx:ssn"/>
+               <arg evaluator="xml" expression="$ctx:license_plate"/>
+               <arg evaluator="xml" expression="$ctx:card_number"/>
+               <arg evaluator="xml" expression="$ctx:cvc"/>
+               <arg evaluator="xml" expression="$ctx:expiry_date"/>
+               <arg evaluator="xml" expression="$ctx:payment"/>
+               <arg evaluator="xml" expression="$ctx:email"/>
+               <arg evaluator="xml" expression="$ctx:validUntil"/>
+            </args>
+         </payloadFactory>
+<property name="messageType" value="application/soap+xml" scope="axis2"/>
+</sequence>
+
