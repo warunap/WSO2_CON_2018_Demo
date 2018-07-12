@@ -6,7 +6,7 @@ https://us18.wso2con.com/agenda/#building-intuititve-integration-applications-an
     - WSO2_CON_2018_EMISSION
     - WSO2_CON_2018_LICENSE
 
-2) Run db dumps against relevent database located inside resources directory
+2) Run db dumps against relevent database located inside WSO2_CON_2018/resources/
 
 3) Navigate to WSO2_CON_2018/resources/PaymentGateway/target and run PaymentGateway-1.0.jar
 
